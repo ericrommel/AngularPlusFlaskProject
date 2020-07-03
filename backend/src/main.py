@@ -22,24 +22,18 @@ def get_exams():
     # transforming into JSON-serializable objects
     schema = ExamSchema(many=True)
     exams = schema.dump(exam_objects)
-    print(type(exams))
-    print(exams)
 
     # serializing as JSON
     session.close()
-    return jsonify(exams.data)
+    return jsonify(exams)
 
 
 @app.route('/exams', methods=['POST'])
 def add_exam():
     # mount exam object
     posted_exam = ExamSchema(only=('title', 'description')).load(request.get_json())
-    print(type(posted_exam))
-    print(posted_exam)
     
-    exam = Exam(**posted_exam.data, created_by="HTTP post request")
-    print(type(exam))
-    print(exam)
+    exam = Exam(**posted_exam, created_by="HTTP post request")
     
     # persist exam
     session = Session()
@@ -47,6 +41,6 @@ def add_exam():
     session.commit()
 
     # return created exam
-    new_exam = ExamSchema().dump(exam).data
+    new_exam = ExamSchema().dump(exam)
     session.close()
     return jsonify(new_exam), 201
